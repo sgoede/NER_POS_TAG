@@ -68,7 +68,7 @@ elif use_type == "Automatically tag an Excel file":
             button = st.empty()
             button.markdown(get_tabe_download_link(dataframe),unsafe_allow_html= True)
             with st.spinner(" Please download your file in the next 3 minutes, after this period it is deleted"):
-                st.info("Trouble downloading? Please use Chrome or Firefox")
+                st.info("Trouble downloading? Please use Chrome or Firefox right click on the button and select: save as")
                 time.sleep(180)
             caching.clear_cache()
             button.empty()

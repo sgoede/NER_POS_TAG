@@ -18,9 +18,7 @@ def to_excel(df):
 def get_tabe_download_link(df):
     val = to_excel(df)
     b64 = base64.b64encode(val)
-    link = f'''<a href="data:application/octet-stream;base64,{b64.decode()}"
-download = "output.xlsx">
-<input type = "button" value = "Click here to download the tagged dataset"></a>'''
+    link = f'''<a href="data:application/octet-stream;base64,{b64.decode()}" download = "output.xlsx"><input type = "button" value = "Click here to download the tagged dataset"></a>'''
     return  link
 
 def labelmaker(list):
@@ -74,5 +72,4 @@ elif use_type == "Automatically tag an Excel file":
                 time.sleep(180)
             caching.clear_cache()
             button.empty()
-            message.empty()
             st.success("The file is deleted")

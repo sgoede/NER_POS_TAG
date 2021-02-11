@@ -6,3 +6,5 @@ Then, with the flair_nerD environment active, go to your terminal and type:
 streamlit run /path/where/you/saved/NER_POS_TAG.py
 
 -Enjoy :)
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/sgoede/ner_pos_tag/main/NER_POS_TAG.py)

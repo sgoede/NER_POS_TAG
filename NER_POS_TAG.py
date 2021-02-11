@@ -1,11 +1,16 @@
-import streamlit as st, base64, pandas as pd, time
+import streamlit as st, base64, pandas as pd, time, gc, SessionState
 from flair.data import Sentence
-from flair.models import MultiTagger
+from flair.models import MultiTagger, SequenceTagger
 from io import BytesIO
 from streamlit import caching
 
-# load tagger for POS and NER
-tagger = MultiTagger.load(['ner-fast','pos-fast'])
+# load tagger for POS and
+session_state = SessionState.get(tagger = None)
+@st.cache(allow_output_mutation=True)
+def load_model():
+    tagger = MultiTagger.load(['ner-fast','pos-fast'])
+    return tagger
+session_state.tagger = load_model()
 
 def to_excel(df):
     output = BytesIO()
@@ -27,11 +32,11 @@ def labelmaker(list):
     for row in range(len(raw)):
         sentence = Sentence(raw[row])
         sentences.append(sentence)
-        tagger.predict(sentences[row])
+        session_state.tagger.predict(sentences[row])
         tags.append(sentence.to_tagged_string())
     return tags
 
-@st.cache(allow_output_mutation=True)
+@st.cache(allow_output_mutation=True,ttl=60*5)
 def load_data(file):
     dataframe_raw = pd.read_excel(file, keep_default_na=False).fillna('')
     return dataframe_raw
@@ -47,11 +52,10 @@ if use_type == "Manually type a sentence":
     manual_user_input = st.text_area("")
     if len(manual_user_input)>0:
         manual_sentence = Sentence(manual_user_input)
-        tagger.predict(manual_sentence)
+        session_state.tagger.predict(manual_sentence)
         tagged_string = manual_sentence.to_tagged_string()
         st.success("Below is your tagged string.")
         st.write(tagged_string)
-
 elif use_type == "Automatically tag an Excel file":
     st.title("Please select your Excel to have it tagged")
     user_input = st.file_uploader("None of your data will be copied. Please be responsible and do not upload sensitive data.",type=['xlsx'],key='file_uploader')

@@ -1,16 +1,24 @@
-import streamlit as st, base64, pandas as pd, time, gc, SessionState
+import streamlit as st, base64, pandas as pd, time
 from flair.data import Sentence
 from flair.models import MultiTagger, SequenceTagger
 from io import BytesIO
 from streamlit import caching
 
-# load tagger for POS and
-session_state = SessionState.get(tagger = None)
+# load tagger for POS and NER
 @st.cache(allow_output_mutation=True)
 def load_model():
     tagger = MultiTagger.load(['ner-fast','pos-fast'])
     return tagger
-session_state.tagger = load_model()
+tagger = load_model()
+
+# load lists for POS and NER
+@st.cache(allow_output_mutation=True)
+def load_meaning():
+    meaning_ner = pd.read_csv('ner_meaning.csv',sep=',' , header=0)
+    meaning_pos = pd.read_csv('pos_meaning.csv',sep=',' , header=0)
+    meanings = meaning_ner.append(meaning_pos)
+    return meanings
+meanings = load_meaning()
 
 def to_excel(df):
     output = BytesIO()
@@ -20,7 +28,7 @@ def to_excel(df):
     processed_data = output.getvalue()
     return processed_data
 
-def get_tabe_download_link(df):
+def get_table_download_link(df):
     val = to_excel(df)
     b64 = base64.b64encode(val)
     link = f'<a href="data:application/octet-stream;base64,{b64.decode()}" download = "output.xlsx"><input type = "button" value = "Click here to download the tagged dataset"></a>'
@@ -32,7 +40,7 @@ def labelmaker(list):
     for row in range(len(raw)):
         sentence = Sentence(raw[row])
         sentences.append(sentence)
-        session_state.tagger.predict(sentences[row])
+        tagger.predict(sentences[row])
         tags.append(sentence.to_tagged_string())
     return tags
 
@@ -48,16 +56,21 @@ use_type = st.sidebar.radio("Please select the type of input you want to use",
                              ("Manually type a sentence","Automatically tag an Excel file"))
 
 if use_type == "Manually type a sentence":
-    st.title("Please type something in the box below")
+    st.subheader("Please type something in the box below")
     manual_user_input = st.text_area("")
     if len(manual_user_input)>0:
         manual_sentence = Sentence(manual_user_input)
-        session_state.tagger.predict(manual_sentence)
+        tagger.predict(manual_sentence)
         tagged_string = manual_sentence.to_tagged_string()
         st.success("Below is your tagged string.")
         st.write(tagged_string)
+        for label in manual_sentence.labels:
+            st.write(label)
+        st.subheader("See table below for the meaning of the abbreviations")
+        st.write (meanings)
+
 elif use_type == "Automatically tag an Excel file":
-    st.title("Please select your Excel to have it tagged")
+    st.subheader("Please select your Excel to have it tagged")
     user_input = st.file_uploader("None of your data will be copied. Please be responsible and do not upload sensitive data.",type=['xlsx'],key='file_uploader')
     if user_input is not None:
         data_load_state = st.text("Loading data...")
@@ -70,7 +83,7 @@ elif use_type == "Automatically tag an Excel file":
             output = labelmaker(raw)
             dataframe["tagging_result"] = output
             button = st.empty()
-            button.markdown(get_tabe_download_link(dataframe),unsafe_allow_html= True)
+            button.markdown(get_table_download_link(dataframe),unsafe_allow_html= True)
             with st.spinner(" Please download your file in the next 3 minutes, after this period it is deleted"):
                 st.info("Trouble downloading? Please use Chrome or Firefox right click on the button and select: save as")
                 time.sleep(180)

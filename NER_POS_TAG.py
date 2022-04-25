@@ -16,7 +16,7 @@ tagger = load_model()
 def load_meaning():
     meaning_ner = pd.read_csv('ner_meaning.csv',sep=',' , header=0)
     meaning_pos = pd.read_csv('pos_meaning.csv',sep=',' , header=0)
-    meanings = meaning_ner.append(meaning_pos)
+    meanings = pd.concat([meaning_ner,  meaning_pos])
     return meanings
 meanings = load_meaning()
 

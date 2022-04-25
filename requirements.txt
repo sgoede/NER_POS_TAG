@@ -38,7 +38,7 @@ hyperopt==0.2.7
 idna==3.3
 importlib-metadata==3.10.1
 ipykernel==6.13.0
-ipython==8.2.0
+ipython==7.32.0
 ipython-genutils==0.2.0
 ipywidgets==7.7.0
 Janome==0.4.2
@@ -88,7 +88,7 @@ py4j==0.10.9.5
 pyarrow==7.0.0
 pycparser==2.21
 pydeck==0.7.1
-Pygments==2.11.2
+Pygments==2.12.0
 Pympler==1.0.1
 pyparsing==3.0.8
 pyrsistent==0.18.1
@@ -107,7 +107,7 @@ segtok==1.5.11
 semver==2.13.0
 Send2Trash==1.8.0
 sentencepiece==0.1.95
-setuptools==61.2.0
+setuptools==62.1.0
 six==1.16.0
 smart-open==5.2.1
 smmap==5.0.0
